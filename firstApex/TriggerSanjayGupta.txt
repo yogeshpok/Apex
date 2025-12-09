@@ -1561,5 +1561,3 @@ Note:
 the comments.
 ● A problem can be solved through more than one way. If you know any
 other way then please share it as well in comments
-
-
