@@ -1,10 +1,5 @@
 Apex Trigger
 Solved Scenarios
-(Improve Your Salesforce Development Skills)
-
-Learn Salesforce Live & Free!
-Join Ongoing Admin & Dev Bootcamp on Youtube!
-1000+ folks are learning Salesforce together!
 
 (January - June 2023)
 
