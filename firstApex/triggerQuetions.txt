@@ -1,6 +1,7 @@
-? 100 Apex Trigger Coding Practice Questions (From Basic to Advance)
+***************100 Apex Trigger Coding Practice Questions (From Basic to Advance)*************
 
-?? BASIC LEVEL (1�25)
+BASIC LEVEL (1 to 25)
+==================================================================================================================================================================
 Simple triggers, single-object logic.
 1. Set Contact.Created_On__c = Today on insert.
 2. Set Opportunity.StageName = 'Prospecting' if empty.
@@ -28,7 +29,8 @@ Simple triggers, single-object logic.
 24. Populate CustomField__c = CreatedBy.Name before insert.
 25. Auto-calc Age__c on Student__c from DOB__c.
 
-?? INTERMEDIATE LEVEL (26�50)
+INTERMEDIATE LEVEL (26 to 50)
+================================================================================================================================================================
 Bulkification, SOQL maps, cross-object updates.
 26. Prevent duplicate Contact Email under same Account.
 27. Update all Contact statuses ? "Inactive" when Account is inactive.
@@ -56,7 +58,8 @@ Bulkification, SOQL maps, cross-object updates.
 49. Add error if Contact.Email ends with '@test.com'.
 50. Update Grandparent object based on child insert.
 
-?? ADVANCED LEVEL (51�75)
+ADVANCED LEVEL (51 to 75)
+===================================================================================================================================================================
 Recursion prevention, async calls, multi-object relationships.
 51. Call Queueable to send welcome email when Contact inserted.
 52. Insert custom History__c object on Opportunity update (old vs new values).
@@ -84,7 +87,8 @@ Recursion prevention, async calls, multi-object relationships.
 74. Prevent updating Invoice__c if Payment__c exist.
 75. Auto-create default child templates when Project__c is created.
 
-?? ENTERPRISE / PROJECT LEVEL (76�100)
+ENTERPRISE / PROJECT LEVEL (76 to 100)
+===================================================================================================================================================================
 Complex systems, multi-parents, async + platform events.
 76. Publish a Platform Event when Account is updated.
 77. On Contact insert, call Queueable ? Future ? callout chain.
