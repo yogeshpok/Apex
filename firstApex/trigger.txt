@@ -1,0 +1,224 @@
+✅ 100 Apex Trigger Coding Practice Questions (From Basic to Advance)
+🧩 BASIC LEVEL (1–25)
+
+Simple triggers, single-object logic.
+
+Set Contact.Created_On__c = Today on insert.
+
+Set Opportunity.StageName = 'Prospecting' if empty.
+
+Prevent inserting Account without Phone.
+
+Uppercase Contact LastName before insert.
+
+Auto-fill Case.Priority = 'Medium' if not provided.
+
+Default Lead.Rating = 'Warm' before insert.
+
+Prevent deleting Accounts with AnnualRevenue > 500000.
+
+Auto-set Contact.Description = 'New Contact' on insert.
+
+Copy Account BillingCity → Contact.City before insert.
+
+Prevent insert if Opportunity.Amount < 0.
+
+Auto-check Contact.DoNotCall if Phone is blank.
+
+Prevent insert of duplicate Employee__c by National_ID__c.
+
+Auto-link newly created Opportunity to default Pricebook.
+
+Set Case.Subject = 'Auto Created' if user leaves blank.
+
+Auto-set Task.Status = 'Not Started' on insert.
+
+Prevent deletion of Closed Won Opportunities.
+
+Auto-calc total Price = Quantity * Unit Price before insert.
+
+Populate Contact.OwnerId = Account.OwnerId before insert.
+
+Prevent update of Account.Type once set.
+
+Auto-create a Task when a Case is created.
+
+Set Lead.IsConverted = false (default) before insert.
+
+Prevent creating Contact if Email Domain is blacklisted.
+
+Auto-set Account Rating = 'Hot' if AnnualRevenue > 1M.
+
+Populate CustomField__c = CreatedBy.Name before insert.
+
+Auto-calc Age__c on Student__c from DOB__c.
+
+⚙️ INTERMEDIATE LEVEL (26–50)
+
+Bulkification, SOQL maps, cross-object updates.
+
+Prevent duplicate Contact Email under same Account.
+
+Update all Contact statuses → "Inactive" when Account is inactive.
+
+Recalculate Account.Contact_Count__c on Contact insert/update/delete.
+
+Update Opportunity.Amount_Sum__c when related OpportunityLineItems change.
+
+Sync Contact MailingCity with Account.BillingCity on update.
+
+Auto-create a Case when Opportunity is Closed Won.
+
+Update Parent Account.Last_Opportunity_Stage__c when Opportunity stage changes.
+
+Prevent updating Opportunity.Amount if StageName = Closed Won.
+
+Auto-update Case.Account lookup from Contact lookup.
+
+Populate Task.WhatId with Opportunity if Contact role exists.
+
+Update child Invoices.Status__c = Paid if Parent Payment__c is completed.
+
+Prevent creation of more than 1 active Contract per Account.
+
+Update total donations on Donor__c when Donation__c records change.
+
+Cascade delete custom Invoices__c when Account is deleted (manual).
+
+Set default pricebook for Opportunity on creation.
+
+Auto-create Event when Task is marked Completed.
+
+Auto-assign Lead to Queue if LeadSource = 'Web'.
+
+Update Parent Case status when all Sub-cases are Closed.
+
+Update Asset Warranty_End_Date__c based on Purchase_Date__c.
+
+Maintain LastModifiedBy__c custom field manually.
+
+Prevent deleting Users__c records if Active = true.
+
+Auto-generate unique Employee_Code__c on Employee__c insert.
+
+Update Project__c.Progress__c when Tasks__c complete.
+
+Add error if Contact.Email ends with '@test.com'.
+
+Update Grandparent object based on child insert.
+
+🔁 ADVANCED LEVEL (51–75)
+
+Recursion prevention, async calls, multi-object relationships.
+
+Call Queueable to send welcome email when Contact inserted.
+
+Insert custom History__c object on Opportunity update (old vs new values).
+
+Prevent recursive triggers when updating child records.
+
+Auto-clone child records when parent object is cloned.
+
+On Case closure, call a Future method to notify external system.
+
+Update Account.Average_Opportunity_Amount__c on Opp changes.
+
+Roll-up sum of child Payments__c.Amount on Invoice__c.
+
+Validate that total OpportunityLineItem quantity ≤ Stock__c in Product2.
+
+Sync Address fields between Account and its Contacts.
+
+Auto-assign Accounts to region-based Queue when BillingState changes.
+
+On Opportunity update, update related Quote records.
+
+Prevent updating Contact.Email if Email_Verified__c = true.
+
+Archive old Tasks (> 180 days) via trigger + Batch + Queueable.
+
+On insert of Job__c, auto-create interview stages (child records).
+
+On Task completion, auto-update Account.Last_Activity_Date__c.
+
+Auto-create Renewal Opportunity 90 days before Contract end date.
+
+Prevent deletion of Parent if child count > limit.
+
+Maintain latest Case Number in Account.Latest_Case__c.
+
+Update Parent GrandTotal__c on child Items__c insert/delete.
+
+Cascade deactivate related Users__c when Manager__c is deactivated.
+
+Validate that sum of Order Items does not exceed Credit_Limit__c.
+
+Auto-create Notification__c for large Opportunity Amounts.
+
+Validate Date consistency: End_Date__c > Start_Date__c.
+
+Prevent updating Invoice__c if Payment__c exist.
+
+Auto-create default child templates when Project__c is created.
+
+🚀 ENTERPRISE / PROJECT LEVEL (76–100)
+
+Complex systems, multi-parents, async + platform events.
+
+Publish a Platform Event when Account is updated.
+
+On Contact insert, call Queueable → Future → callout chain.
+
+Clone all related child records when Quote is cloned.
+
+Auto-generate a PDF (mock) by calling an async Apex class.
+
+Multi-level cascade update:
+Account → Opportunity → Quote → QuoteLineItem.
+
+Full roll-up of Invoice__c + Payments__c to Account.Balance__c.
+
+Auto-create Renewal Case 30 days before Warranty expires.
+
+Real-time sync of Customer__c with external API via callout.
+
+Maintain a version history object for every update of Case.
+
+Prevent Record-Type mismatch between Account & Opportunity.
+
+Auto-generate Coupon__c records for new Customer__c.
+
+Validate unique combination of (Account, Product, Territory).
+
+Auto-schedule Apex Batch via trigger conditions.
+
+Publish a platform event when Stock__c drops below threshold.
+
+Auto-update Partner records when Partner_Account__c changes.
+
+Maintain monthly summary snapshot object on every transaction.
+
+Cross-object validation:
+Project__c cannot be Closed if Tasks__c are Pending.
+
+Auto-create Approval record when Invoice__c > 100000.
+
+Complex roll-up across 3 objects (Hierarchy levels).
+
+Multi-Object Recursion Control mechanism (static map).
+
+Trigger Framework with separate classes for every event.
+
+Trigger that dynamically loads logic using Custom Metadata.
+
+Trigger that uses Dependency Injection (mock scenario).
+
+Full enterprise rule:
+Product → Stock → Batch update → Notify Manager → Create Task.
+
+End-to-end flow:
+When Case → Closed:
+• update Account
+• insert Survey__c
+• send async email
+• publish platform event
