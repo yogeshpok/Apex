@@ -120,3 +120,4 @@ When Case ? Closed:
 � send async email
 � publish platform event
 
+sfdx force:source:retrieve -m ApexTrigger:One_9_12_2025 -u yogesh@selfaura.com
