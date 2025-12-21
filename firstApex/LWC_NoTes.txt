@@ -33,4 +33,51 @@ To create the LWC componenet
 -------------------------------
 sf lightning generate component --type lwc --name myFirstLwc --output-dir 
 sfdx force:auth:web:login -r https://login.salesforce.com/ 
-sfdx force:source:deploy -p .\force-app\main\default\lwc\  -u yogesh@selfaura.com -w 20            
+sfdx force:source:deploy -p .\force-app\main\default\lwc\  -u yogesh@selfaura.com -w 20  
+
+
+LWC Bundle
+==============
+01. Template     ----> Name.html          --->  HTML,Lightning  ---> UI Designing           --> Componenet
+02. ES Module    ----> Name.js            --->  JavaScript      ---> Logic                  --> Cont,Help,rerenderer
+03. Interface    ----> Name.js-meta.xml   --->  XML,lightning   ---> LWC Locatio/implement  --> Interface
+04. Styles       ----> Name.css           --->  css             ---> Style(Color,SIZE etc)  --> CSS 
+
+
+aura
+No SVG
+NO Documentation
+No Design
+
+Aspect	              Aura Components	                        Lightning Web Components (LWC)
+
+Framework	          Aura framework	                        Built on modern web standards
+
+Performance	          Generally slower compared to LWC	        Significantly faster due to optimized 
+                                                                rendering.
+
+Development Model	  Event-driven and component-based	        More modular and follows a modern JavaScript
+                                                                model
+
+Syntax	              Uses Aura-specific markup and JavaScript	Utilizes HTML, JavaScript, and decorators
+
+Learning Curve	      Steeper learning curve for beginners	    Easier for developers familiar with modern web dev
+
+Compatibility	      Compatible with older Salesforce orgs	    May require updates for older systems and browsers
+
+Community Support	  Well-established community and resources	Growing community with increasing support
+
+Integration	          Can integrate with Visualforce and        Seamless integration with Salesforce platform and services
+                      other Salesforce technologies	
+
+Flexibility	          Offers flexibility in component       	Provides more flexibility with standard web dev practices
+                      structure and design
+
+Component Reusability Components can be reused within 	        Encourages component reusability and composition
+                       Aura framework
+
+Lifecycle Hooks	      Aura components have their 	            Uses standard lifecycle hooks
+                      lifecycle hooks
+                      
+Browser Compatibility Compatible with older browsers like       Focuses on modern browser compatibility
+                       IE11 	        
