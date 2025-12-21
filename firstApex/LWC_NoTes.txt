@@ -2,7 +2,7 @@ Day First 1 21/12/2025
 ======================
 Lightning Web Componenet
 -----------------------
-Lightning Componenet Usig two programing Models:
+Lightning Componenet Using two programing Models:
 lightning Web Component and the orignal Model.
 
 Lightning Web Component Are Cutom Html Elements Built using the HTML and Modern JavaScript.
@@ -78,6 +78,6 @@ Component Reusability Components can be reused within 	        Encourages compon
 
 Lifecycle Hooks	      Aura components have their 	            Uses standard lifecycle hooks
                       lifecycle hooks
-                      
+
 Browser Compatibility Compatible with older browsers like       Focuses on modern browser compatibility
                        IE11 	        
