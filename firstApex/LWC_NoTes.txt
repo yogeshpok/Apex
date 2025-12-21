@@ -9,5 +9,28 @@ Lightning Web Component Are Cutom Html Elements Built using the HTML and Modern 
 
 Lightning  Web Componenets and  aura Can Coexits and interoperate on a page to admins and user they both appear as Lightning components.
 
+LWC is the ECMA7 standardization
+AURA is the ECMA5 standardization
 
 
+ECMA7
+=============
+1) Custom Elements -->
+Avoid vendor type of element user neutral tech/element
+e.g recom-- HTML,
+Lightning-card,Lightning-buttton
+<button></button> ---> neutral HTML
+<lightning-button></lightning-button> ---> Custom vendor framework --AURA
+
+2)Shadow DOM ---> Encapsulation (HTML + Lightning)
+Mixture of the 2 technology is called ShadowDOM.
+
+3)HTML Template ---> UI Frontend Should be .Html
+
+4)ES Module ---> Use of modern JavaScript its not proprietary language
+=====================================================================
+To create the LWC componenet
+-------------------------------
+sf lightning generate component --type lwc --name myFirstLwc --output-dir 
+sfdx force:auth:web:login -r https://login.salesforce.com/ 
+sfdx force:source:deploy -p .\force-app\main\default\lwc\  -u yogesh@selfaura.com -w 20            
