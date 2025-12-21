@@ -1,0 +1,13 @@
+Day First 1 21/12/2025
+======================
+Lightning Web Componenet
+-----------------------
+Lightning Componenet Usig two programing Models:
+lightning Web Component and the orignal Model.
+
+Lightning Web Component Are Cutom Html Elements Built using the HTML and Modern JavaScript.
+
+Lightning  Web Componenets and  aura Can Coexits and interoperate on a page to admins and user they both appear as Lightning components.
+
+
+
