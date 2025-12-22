@@ -5,7 +5,7 @@ Lightning Web Componenet
 Lightning Componenet Using two programing Models:
 lightning Web Component and the orignal Model.
 
-Lightning Web Component Are Cutom Html Elements Built using the HTML and Modern JavaScript.
+Lightning Web Component is Cutom Html component Built using the HTML and Modern JavaScript.
 
 Lightning  Web Componenets and  aura Can Coexits and interoperate on a page to admins and user they both appear as Lightning components.
 

@@ -1,0 +1,14 @@
+<template>
+    <lightning-card title="Greter Of 3 Number">
+
+        <lightning-input type="text" label="Enter First number" value={num1} name="inp1" onchange={capnum}> </lightning-input>
+        <lightning-input type="text" label="Enter Second number" value={num2} name="inp2" onchange={capnum}> </lightning-input>
+        <lightning-input type="text" label="Enter Third number" value={num3} name="inp3" onchange={capnum}> </lightning-input>
+
+        <lightning-button variant="success" label="Calculate Lesser" onclick={calcme3} ></lightning-button>
+        <lightning-button variant="efficient" label="Calculate greter" onclick={calcme2} ></lightning-button>
+
+        <h1>********************** Result : {result} ****************</h1>
+    </lightning-card>
+    
+</template>
