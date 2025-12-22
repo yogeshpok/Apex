@@ -1,0 +1,40 @@
+<template>
+    <lightning-card title="array in lWC">  
+
+{cities}
+<p>**************************way one FOR EACH*********************************************</p>
+
+<!-- way one FOR EACH -->
+    <template for:each={cities} for:item=c>
+
+
+        <p key={c}>Good morning Guys ...{c}</p>
+        
+    </template>
+    </lightning-card>
+<p>****************************WAY Two Iterator*******************************************</p>
+    <!--WAY Two Iterator  -->
+    <template iterator:it={cities}>
+        <p key={it.value}>{it.value}</p>
+
+    </template>
+
+
+    <!-- JSON DATA -->
+    <p>*********************************JSON*****************************************</p>
+    <b>Student Name : </b>{student.name}<p></p>
+    <b>Student Name : </b>{student.age}<p></p>
+    <b>Student Name : </b>{student.salary}<p></p>
+
+
+    <!-- JSON ARRAY -->
+    <p>*********************************ARRAY of the JSON*************************************************</p>
+      <template iterator:it={students}>
+        <p key={it.value}> 
+            <b>Student Name : </b>{it.value.name}
+            <b>Student Name : </b>{it.value.age}
+            <b>Student Name : </b>{it.value.salary}
+        </p>
+
+    </template>
+</template>

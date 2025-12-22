@@ -81,3 +81,9 @@ Lifecycle Hooks	      Aura components have their 	            Uses standard life
 
 Browser Compatibility Compatible with older browsers like       Focuses on modern browser compatibility
                        IE11 	        
+
+@api
+=====
+To make the property public recactive use the api decorator.
+
+import {api} from 'lwc';
