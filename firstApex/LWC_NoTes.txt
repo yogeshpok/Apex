@@ -87,3 +87,31 @@ Browser Compatibility Compatible with older browsers like       Focuses on moder
 To make the property public recactive use the api decorator.
 
 import {api} from 'lwc';
+
+
+Wire
+====
+call the apex method on the backend and get the result
+get the records from backend.
+syntax :
+
+import {Wire} from 'lwc';
+
+//wire a property
+@wire(getAccountINFO,{ srcText :'$sttxt'}) wiredAccounts;
+
+//wire a function
+mydata;
+myerror;
+@wire(getAccountINFO,{ srcText :'$sttxt'}) function({data,error})
+{
+    if(data)
+    {
+        this.mydata =data;
+    }
+    else{
+        this.myerror = error
+    }
+};
+
+

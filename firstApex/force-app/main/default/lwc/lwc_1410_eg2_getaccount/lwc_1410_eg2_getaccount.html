@@ -1,0 +1,69 @@
+<template>
+
+    <b>@@@@@@@WIREFD A Property@@@@@@@@@</b>
+    <lightning-card title="Account Search" icon-name="standard:account">
+                <p>*********************************************SEARCH THE ACCOUNT************</p>
+
+                <lightning-input label="Enter the Search Text" type="search" onchange={capst}></lightning-input>
+                <lightning-button label="Search" icon-name="utility:search" onclick={searchme}></lightning-button>
+                <p>*********************************************SEARCH result **************</p>
+
+                <!-- Iterate through the accounts -->
+                <template for:each={wiredAccounts.data} for:item="acc">
+                        <div class="mybox" key={acc.id}>
+                            <p key={acc.id}> <!-- Key added here -->
+                                ************************
+                                NAME: {acc.Name}</br>
+                                Phone: {acc.Phone}</br>
+                                Industry: {acc.Industry}</br>
+                                Rating: {acc.Rating}</br>
+                                *************************
+                            </p>
+                        </div>
+                </template>  
+
+            <p>**************SEARCH result IN TABLE******************</p>
+                    <lightning-datatable
+                        key-field="id"
+                        data={wiredAccounts.data}
+                        columns={columns}>
+                    </lightning-datatable>
+    </lightning-card>
+
+
+
+    <b>@@@@WIREFD A Function@@@@@@@@</b>
+<template if:true={mydata}>
+    <lightning-card title="Account Search" icon-name="standard:account">
+        <p>********************************SEARCH THE ACCOUNT************************</p>
+
+        <lightning-input label="Enter the Search Text" type="search" onchange={capst}></lightning-input>
+        <lightning-button label="Search" icon-name="utility:search" onclick={searchme}></lightning-button>
+        <p>***********************************SEARCH result *************************</p>
+
+        <!-- Iterate through the accounts -->
+        <template for:each={mydata} for:item="acc">
+            <div class="mybox" key={acc.id}>
+                <p key={acc.id}> <!-- Key added here -->
+                    ************************
+                    NAME: {acc.Name}</br>
+                    Phone: {acc.Phone}</br>
+                    Industry: {acc.Industry}</br>
+                    Rating: {acc.Rating}</br>
+                    *************************
+                </p>
+            </div>
+        </template>
+
+        <p>****************SEARCH result IN TABLE****************</p>
+        <lightning-datatable
+            key-field="id"
+            data={mydata}
+            columns={columns}>
+        </lightning-datatable>
+    </lightning-card>
+</template>
+<template if:true={myerror}> 
+<b>Data Not available in the SYStem{myerror}</b>
+</template>
+</template>

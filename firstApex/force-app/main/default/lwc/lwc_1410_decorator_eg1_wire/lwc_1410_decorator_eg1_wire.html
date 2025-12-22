@@ -1,0 +1,10 @@
+<template>
+    <lightning-card>
+                <b>******************This is a wire a property from apex class **********
+                    {msg.data}
+                </b>
+                <template for:each={yogdata.data} for:item="acc">
+                <p key={acc.id}>*********Name of the Account ***********:{acc.Name}</p>
+                </template>
+   </lightning-card>
+</template>

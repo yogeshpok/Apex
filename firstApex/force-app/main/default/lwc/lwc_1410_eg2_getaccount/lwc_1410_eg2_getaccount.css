@@ -1,0 +1,10 @@
+.mybox{
+
+    background-color: rgb(23, 211, 211);
+    border: solid;
+    border-color: blue;
+    border-width: 5px;
+    color: red;
+    width: 250px;
+    height: 150px;
+}
