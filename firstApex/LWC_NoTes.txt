@@ -115,3 +115,37 @@ myerror;
 };
 
 
+LWC LDS
+========
+Lightning Data Service does a lot of work to make code perform well.
+Loads record data progressively.
+Caches results on the client.
+Invalidates cache entries when dependent Salesforce data and metadata changes.
+Optimizes server calls by bulkifying and deduping requests.
+
+01. Form based
+========================
+a) lightning record view form ---> lightning output field
+b) lightning record edit form --->  lightning input field
+c) lightning record  form --->  Nothing
+
+lightning-record-edit-form    — Displays an editable form.
+lightning-record-view-form    — Displays a read-only form.
+lightning-record-form         — Supports edit, view, and read-only modes.
+
+Feature	             lightning-record-form	lightning-record-view-form	lightning-record-edit-form
+Create Records	                Yes	 	                                   Yes
+Edit Records	                Yes	 	                                   Yes
+View Records	                Yes	            Yes	 
+https://developer.salesforce.com/docs/component-library/bundle/lightning-record-edit-form/documentation
+https://developer.salesforce.com/docs/component-library/bundle/lightning-record-form/documentation
+https://developer.salesforce.com/docs/component-library/bundle/lightning-record-view-form/documentation
+
+02) programing based
+===========================
+a) wire service --> retrival of data
+b) Imperative service
+    a) create record 
+    b) Update record
+    c) Delete record
+    d) get record
