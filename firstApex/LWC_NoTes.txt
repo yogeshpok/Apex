@@ -95,6 +95,23 @@ call the apex method on the backend and get the result
 get the records from backend.
 wire is by default reactive when we want to automatic load of the records then we can use the reactive wire
 
+🔹 @wire – When the framework should manage data
+Key Points:
+ - Automatically invoked by the LWC lifecycle
+ - Reactive to parameter changes
+ - Built-in caching for better performance
+✔ Best for initial data load and read-only UI
+
+🔹 Imperative Calls – When the developer needs control
+Key Points:
+ - Manually invoked (button click / condition-based)
+ - Better error handling
+ - Suitable for complex or sequential logic
+✔ Best for user-driven actions and custom workflows
+
+🔁 When to Use What 
+ - Use @wire when data should auto-refresh
+ - Use imperative calls when execution depends on user action
 syntax :
 
 import {Wire} from 'lwc';
