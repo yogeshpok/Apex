@@ -1,0 +1,21 @@
+<template>
+    <lightning-card title="EVENT Declarative Parent">
+             <b>volume</b> {vol}
+            <c-lwc_2210_eg1_event_declarative  onevtinc={Incme} onevtdec={Decme}></c-lwc_2210_eg1_event_declarative>
+            <b>The Message received from Child</b> {recvmsg}
+            
+       
+
+    </lightning-card>
+   
+           
+    <lightning-card title="Employee">
+        <b>**************************Displaying The Employee detail************************************</b>
+    <c-lwc_2210_eg1_event_declarative_enter_emp_detail onevtemp={displayEMP}></c-lwc_2210_eg1_event_declarative_enter_emp_detail>
+    <b>Employee Name :</b>{empName}<p></p>
+    <b>Employee Salary :</b>{empSal}<p></p>
+    <b>Employee Age :</b>{empAge}<p></p>
+    <b>Employee Birth :</b>{empBirth}<p></p>
+
+    </lightning-card>
+</template>

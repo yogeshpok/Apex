@@ -93,6 +93,8 @@ Wire
 ====
 call the apex method on the backend and get the result
 get the records from backend.
+wire is by default reactive when we want to automatic load of the records then we can use the reactive wire
+
 syntax :
 
 import {Wire} from 'lwc';
@@ -113,7 +115,82 @@ myerror;
         this.myerror = error
     }
 };
+================================================================
+🔥 Tricky @wire Interview Questions & Answers
+Is @wire reactive or imperative?
+=> @wire is reactive by default. It automatically runs when the component loads and when reactive parameters change.
 
+Can we call @wire on button click?
+=> No. @wire cannot be called manually.
+For button clicks, use imperative Apex calls.
+
+If there are multiple @wire functions, is execution order guaranteed?
+=> No. Multiple @wire adapters execute independently and asynchronously.
+If order is required, use reactive parameters or imperative calls.
+
+Can one @wire call another @wire?
+=> No.
+But one wire can trigger another indirectly using reactive parameters ($).
+
+Why do we use $ before a parameter in @wire?
+=> $ makes the parameter reactive, so the wire re-executes automatically when the value changes.
+
+What happens if a reactive parameter is undefined?
+=> The wire does not execute until the parameter gets a valid value.
+
+Can @wire be used with any Apex method?
+=> No.
+The Apex method must be annotated with:
+@AuraEnabled(cacheable=true)
+
+Can we use @wire for DML operations?
+=> No.
+@wire is for read-only operations only.
+DML must be done imperatively.
+
+What is the difference between wired property and wired function?
+=> Wired Property	Wired Function
+   Simpler	        More control
+   No logic	        Custom logic
+ Auto assignment	Manual assignment
+// Property
+@wire(getAccounts) accounts;
+
+// Function
+@wire(getAccounts)
+wiredAccounts({ data, error }) {
+    if (data) { this.accounts = data; }
+}
+
+Does @wire always cache data?
+=> Caching works only when:
+Using LDS adapters, OR
+Apex method is @AuraEnabled(cacheable=true)
+
+Can we stop a wire from running?
+=> Yes, by:
+Making the reactive parameter undefined or null
+
+@wire(getAccounts, { accId: '$accountId' })
+accounts;
+
+// wire won't run if accountId is undefined
+
+When should we avoid using @wire?
+=> Avoid @wire when:
+Action is user-triggered
+Conditional logic is needed
+Error handling is complex
+DML operations are required
+
+Is @wire synchronous or asynchronous?
+=> @wire is asynchronous.
+
+Can we refresh wired data manually?
+=> Yes, using refreshApex().
+
+Interview Killer One-Liner
+=> @wire is reactive, read-only, and framework-controlled; imperative calls are manual, flexible, and developer-controlled.
 
 LWC LDS
 ========
