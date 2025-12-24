@@ -1,0 +1,26 @@
+<template>
+    <b> @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@WIREFD A Property@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</b>
+    <lightning-card title="Account Search" icon-name="standard:account">
+        <p>*********************************************SEARCH THE ACCOUNT************************************************************</p>
+
+        <lightning-input label="Enter the Search Text" type="search" onchange={capst}></lightning-input>
+        <lightning-button label="Search" icon-name="utility:search" onclick={searchme}></lightning-button>
+
+
+        <lightning-datatable
+                                key-field="Id"
+                                data={wiredAccounts.data}
+                                columns={columns}
+                                onsave={handleSave}
+                                draft-values={draftValues}
+                                >
+                                
+
+        </lightning-datatable>
+
+        <!-- <template if:true={wiredAccounts.error}>
+            <b>Data Not Available in the System: {wiredAccounts.error}</b>
+        </template> -->
+        
+   </lightning-card>
+</template>

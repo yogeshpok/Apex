@@ -121,7 +121,7 @@ Lightning Data Service does a lot of work to make code perform well.
 Loads record data progressively.
 Caches results on the client.
 Invalidates cache entries when dependent Salesforce data and metadata changes.
-Optimizes server calls by bulkifying and deduping requests.
+Optimizes server calls by bulkifying and reducing requests.
 
 01. Form based
 ========================
@@ -142,10 +142,14 @@ https://developer.salesforce.com/docs/component-library/bundle/lightning-record-
 https://developer.salesforce.com/docs/component-library/bundle/lightning-record-view-form/documentation
 
 02) programing based
-===========================
+====================================
 a) wire service --> retrival of data
-b) Imperative service
-    a) create record 
-    b) Update record
-    c) Delete record
-    d) get record
+
+b) Imperative service (direct from LWC - No apex class)
+    a) create record => createRecord(recordInput)
+    b) Update record => updateRecord(recordInput)
+    c) Delete record => deleteRecord(recordId)
+    d) get record =>  
+https://developer.salesforce.com/docs/platform/lwc/guide/reference-delete-record.html
+
+3) Server side Imperation (Apex Call)    

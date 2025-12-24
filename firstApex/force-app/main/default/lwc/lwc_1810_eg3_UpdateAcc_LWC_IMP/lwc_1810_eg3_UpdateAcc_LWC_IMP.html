@@ -1,0 +1,14 @@
+<template>
+    <lightning-card title="Account List (LDS)" icon-name="standard:account">
+        <!-- Datatable displaying accounts with inline editing enabled -->
+        <lightning-datatable
+            key-field="Id"
+            data={accounts}
+            columns={columns}
+            draft-values={draftValues}
+            onsave={handleSave}
+            hide-checkbox-column="true"
+        >
+        </lightning-datatable>
+    </lightning-card>
+</template>
