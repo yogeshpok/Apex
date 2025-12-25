@@ -1,0 +1,18 @@
+<template>
+    <lightning-card title="Parent Lifecycle">
+        <lightning-input
+            label="Enter Name"
+            value={name}
+            onchange={handleChange}>
+        </lightning-input>
+
+        <lightning-button
+            label="Toggle Child"
+            onclick={toggleChild}>
+        </lightning-button>
+
+        <template if:true={showChild}>
+            <c-life-cycle-child name={name}></c-life-cycle-child>
+        </template>
+    </lightning-card>
+</template>

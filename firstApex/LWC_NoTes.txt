@@ -1,5 +1,6 @@
-Day First 1 21/12/2025
-======================
+Day First 1 21/12/2025  
+https://developer.salesforce.com/docs/platform/lwc/guide
+===========================================================
 Lightning Web Componenet
 -----------------------
 Lightning Componenet Using two programing Models:
@@ -48,7 +49,7 @@ aura
 No SVG
 NO Documentation
 No Design
-
+=================================================================================================================
 Aspect	              Aura Components	                        Lightning Web Components (LWC)
 
 Framework	          Aura framework	                        Built on modern web standards
@@ -81,7 +82,7 @@ Lifecycle Hooks	      Aura components have their 	            Uses standard life
 
 Browser Compatibility Compatible with older browsers like       Focuses on modern browser compatibility
                        IE11 	        
-
+=============================================================================================================================
 @api
 =====
 To make the property public recactive use the api decorator.
@@ -95,14 +96,14 @@ call the apex method on the backend and get the result
 get the records from backend.
 wire is by default reactive when we want to automatic load of the records then we can use the reactive wire
 
-🔹 @wire – When the framework should manage data
+🔹 @wire - When the framework should manage data
 Key Points:
  - Automatically invoked by the LWC lifecycle
  - Reactive to parameter changes
  - Built-in caching for better performance
 ✔ Best for initial data load and read-only UI
 
-🔹 Imperative Calls – When the developer needs control
+🔹 Imperative Calls - When the developer needs control
 Key Points:
  - Manually invoked (button click / condition-based)
  - Better error handling
@@ -208,7 +209,7 @@ Can we refresh wired data manually?
 
 Interview Killer One-Liner
 => @wire is reactive, read-only, and framework-controlled; imperative calls are manual, flexible, and developer-controlled.
-
+==========================================================================================================================================
 LWC LDS
 ========
 Lightning Data Service does a lot of work to make code perform well.
@@ -246,4 +247,115 @@ b) Imperative service (direct from LWC - No apex class)
     d) get record =>  
 https://developer.salesforce.com/docs/platform/lwc/guide/reference-delete-record.html
 
-3) Server side Imperation (Apex Call)    
+3) Server side Imperation (Apex Call)   
+
+
+===================================================================================================================================
+Here is a simple breakdown of Promise vs Promise.all():
+
+Promise
+Used when you have one asynchronous operation.
+Executes a single async task
+Runs sequentially
+Handles success or failure using .then() and .catch()
+Best for one Apex call at a time
+
+Example use case:
+Fetching Account data from one Apex method.
+
+Promise.all()
+Used when you need to run multiple independent async operations in parallel.
+Executes multiple async tasks together
+Improves performance by running calls simultaneously
+Resolves only when all promises succeed
+If one fails, the entire operation goes to .catch()
+
+Example use case:
+Fetching Accounts, Contacts, and Opportunities at the same time.
+
+Key Difference
+--------------
+Use Promise for a single async task
+Use Promise.all() for multiple async tasks that can run in parallel
+
+Simple takeaway:
+Parallel execution = better performance, when tasks are independent.
+
+Lifecycle Hooks
+=====================
+A lifecycle hook is a callback method that triggers at a specific phase of a component instances lifecycle. 
+With LWC, you can use the following lifecycle hooks.
+
+constructor()
+connectedCallback() and disconnectedCallback()
+renderedCallback()
+errorCallback()
+
+Lightning web components have a lifecycle managed by the framework. 
+The framework creates components, inserts them into the DOM, renders them, and removes them from the DOM. 
+It also monitors components for property changes.
+
+constructor()
+---------------------
+The constructor() method fires when a component instance is created. 
+Dont add attributes to the host element during construction. 
+You can add attributes to the host element in any other lifecycle hook.
+The constructor flows from parent to child, which means that it fires in the parent first. 
+You can't access child elements because they don't exist yet. Properties arent passed yet, either. 
+Properties are assigned to the component after construction and before the connectedCallback() hook.
+
+Constructor Considerations 
+===========================
+These requirements from the HTML: Custom elements spec apply to the constructor().
+The first statement must be super() with no parameters. This call establishes the correct prototype chain and value for this. Always call super() before touching this.
+Don’t use a return statement inside the constructor body, unless it is a simple early-return (return or return this).
+Don’t use the document.write() or document.open() methods.
+Don’t inspect the element's attributes and children, because they don’t exist yet.
+Don’t inspect the element’s public properties, because they’re set after the component is created.
+
+connectedCallback()
+---------------------
+the connectedCallback() lifecycle hook fires when a component is inserted into the DOM. 
+The disconnectedCallback() lifecycle hook fires when a component is removed or hidden from the DOM. 
+Both hooks flow from parent to child. To access the host element, use this. To access elements in a component’s template, use this.template.
+Use
+====
+Establish communication with the current document or container and coordinate behavior with the environment.
+Perform initialization tasks, such as fetch data, set up caches, or listen for events
+Subscribe and Unsubscribe from a Message Channel.
+Navigate to different page types, like records and list views using the lightning/navigation module.
+Work with third-party web components.
+
+disconnectedCallback() 
+-----------------------
+The disconnectedCallback() lifecycle hook fires when a component is removed or hidden from the DOM. 
+Use disconnectedCallback() to clean up work done in the connectedCallback(), like purging caches or removing event listeners.
+
+renderedCallback()
+------------------
+The renderedCallback() lifecycle hook is unique to Lightning Web Components.
+Use it to perform logic after a component has finished the rendering phase. This hook flows from child to parent.
+
+Render 
+------
+Call the render() method to update the UI. You can call it before or after connectedCallback().
+
+errorCallback()
+----------------
+The errorCallback() hook is unique to Lightning Web Components. 
+Implement it to create an error boundary component that captures errors in all the descendent components in its tree. 
+Like a JavaScript catch{} block, errorCallback() captures errors that occur in lifecycle hooks or during an event handler declared in an HTML template. 
+You can code the error boundary component to log stack information and render an alternative view to tell users what happened and what to do next.
+
+lets say there were 2 Component One is parent and another is child What should be the lifecycle for that.
+=>
+ PARENT constructor
+ PARENT connectedCallback
+ PARENT render
+ CHILD constructor
+ CHILD connectedCallback
+ CHILD render
+ CHILD renderedCallback
+ DOM accessed in renderedCallback
+ PARENT renderedCallback
+
