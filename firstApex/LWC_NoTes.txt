@@ -594,3 +594,9 @@ LMS = official, reactive, secure
 
 INTERVIEW ONE-LINER:
 Lightning Message Service is the recommended, reactive, and secure way to communicate between decoupled components in Salesforce.
+
+
+===========================
+CSP Trusted Sites
+----------------
+For client-side API calls using fetch in LWC, we must configure CSP Trusted Sites, not Remote Site Settings.
