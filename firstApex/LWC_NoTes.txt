@@ -358,4 +358,239 @@ lets say there were 2 Component One is parent and another is child What should b
  CHILD renderedCallback
  DOM accessed in renderedCallback
  PARENT renderedCallback
+------------------------------------------------------------------------------
+ShadowDom
+************
+what is Dom ?
+DOM is a programing API for html and XML document .it defines the logical structure of document and the way a document is acessed and Manipulated.
+basically Dom is a tree Structure representation of the web page.
 
+what is the Shadow Dom ?
+shadow Dom brings encapsulation concept of the html which enables the you link hidden seprated Dom to an element.
+
+benifit
+Dom Queries event propogation and css rule cannot goto other side of the shadow boundry.thus creating encapsulation.
+
+
+Aceessing element in lWC
+----------------------------
+to acess element rendered by a component use the template property.
+
+this.template.querySelector(selector);
+this.template.querySelectorAll(selector);
+element.template.querySelectorAll(selector);
+
+Note :dont use ID selector with queryselector.
+
+lwc:dom ="mannual"
+
+add this directive to a native html element to attach an element as a child.
+
+HelloQuerySelectorDemo.html
+-----------------------------
+<template>
+    <lightning-card title="querySelector">
+        <div class="slds-var-m-around_medium">
+            <h1>Hey I am heading</h1>
+            <template for:each={userNames} for:item="user">
+                <div class="name" key={user}>{user}</div>
+            </template>
+            <div class="child" lwc:dom="manual"></div>
+             <button onclick={fetchDetailHandler}>Fetch details</button>
+        </div>
+    </lightning-card>
+</template>
+
+HelloQuerySelectorDemo.js
+----------------------------
+import { LightningElement } from 'lwc';
+
+export default class HelloQuerySelectorDemo extends LightningElement {
+    userNames =["John", "Smith", "Nik", "Mike"]
+    fetchDetailHandler(){
+        const elem = this.template.querySelector('h1')
+        elem.style.border="1px solid red";
+        console.log(elem.innerText)
+
+        const userElements = this.template.querySelectorAll('.name')
+        Array.from(userElements).forEach(item=>{
+            console.log(item.innerText)
+            item.setAttribute("title", item.innerText)
+        })
+
+        ///  lwc:dom="manual" demo
+        const childElem = this.template.querySelector('.child')
+        childElem.innerHTML = '<p>Hey i am a child element</p>'
+    }
+}
+
+========================================================
+1 PubSub in LWC (Legacy / Custom Pattern)
+------------------------------------------
+🔹 What is PubSub?
+A custom JavaScript event bus used to communicate between:
+components without parent-child relationship 
+mainly used before LMS existed
+
+🔹 How PubSub works
+Uses a shared JS file (pubsub.js)
+Components register, fire, and unregister events manually
+
+🔹 Use Case
+Sibling components
+LWC → Aura communication (old projects)
+
+🔹 Limitations ❌
+Problem
+Not officially supported
+Manual cleanup required
+Not reactive
+Can cause memory leaks
+Not cross-DOM safe
+🔹 Interview One-Liner
+
+PubSub is a custom event pattern and is not recommended for new LWC development.
+
+2 Lightning Message Service (LMS) ✅ (Recommended)
+---------------------------------------------------
+
+🔹 What is LMS?
+Salesforce standard, supported messaging framework for:
+
+LWC ↔ LWC
+LWC ↔ Aura
+Across DOM trees
+
+🔹 Key Features
+
+✔ Decoupled communication
+✔ Reactive
+✔ Auto cleanup
+✔ Secure
+✔ Cross-namespace safe
+
+🔹 LMS Architecture
+Publisher → Message Channel → Subscriber
+
+🔹 LMS Files Required
+
+1 Message Channel metadata
+2 Publisher component
+3 Subscriber component
+
+
+
+PUBSUB AND LIGHTNING MESSAGE SERVICE (LMS) - LWC QUESTIONS & ANSWERS
+=================================================================
+
+1. What is PubSub in LWC?
+Answer:
+PubSub is a custom JavaScript event-based communication pattern used to communicate between unrelated components.
+It is not officially supported by Salesforce and is considered legacy.
+
+2. Is PubSub reactive?
+Answer:
+No. PubSub is event-driven, not reactive.
+
+3. Is PubSub recommended for new LWC development?
+Answer:
+No. Salesforce recommends using Lightning Message Service instead.
+
+4. What is Lightning Message Service (LMS)?
+Answer:
+LMS is a Salesforce-supported messaging framework that enables communication between Aura and LWC components
+without a direct relationship.
+
+5. Is LMS reactive?
+Answer:
+Yes. Subscribers automatically react when a message is published.
+
+6. Does LMS require parent-child relationship?
+Answer:
+No. LMS works for completely decoupled components.
+
+7. Can LMS communicate between LWC and Aura?
+Answer:
+Yes. LMS supports LWC ↔ Aura communication.
+
+8. What are the main parts of LMS?
+Answer:
+1) Message Channel
+2) Publisher
+3) Subscriber
+
+9. Where is the message channel stored?
+Answer:
+In force-app/main/default/messageChannels folder.
+
+10. Is message channel an LWC component?
+Answer:
+No. It is metadata of type LightningMessageChannel.
+
+11. Which decorator is mandatory for LMS?
+Answer:
+@wire(MessageContext)
+
+12. Can LMS pass complex objects?
+Answer:
+Yes, but only serializable data (no functions or DOM elements).
+
+13. Can one component both publish and subscribe?
+Answer:
+Yes.
+
+14. What happens if no subscriber exists?
+Answer:
+The message is ignored, no error occurs.
+
+15. Is cleanup required in LMS?
+Answer:
+No. Salesforce handles cleanup automatically.
+
+16. Is PubSub cross-DOM safe?
+Answer:
+No.
+
+17. Is LMS cross-DOM safe?
+Answer:
+Yes.
+
+18. Can LMS work in Salesforce Mobile App?
+Answer:
+Yes.
+
+19. Can LMS be used in Experience Cloud?
+Answer:
+Yes.
+
+20. Biggest mistake while deploying LMS?
+Answer:
+Using LightningComponentBundle instead of LightningMessageChannel in package.xml.
+
+21. When should LMS NOT be used?
+Answer:
+For parent-child communication. Use @api or custom events instead.
+
+22. Can @wire be triggered on button click?
+Answer:
+No. @wire cannot be called manually.
+
+23. How to load data on button click?
+Answer:
+Use imperative Apex calls.
+
+24. Is @wire by default reactive?
+Answer:
+Yes.
+
+25. Can one wire depend on another wire?
+Answer:
+No direct dependency. Use reactive parameters or imperative calls.
+
+26. PubSub vs LMS (short):
+Answer:
+PubSub = legacy, custom, not reactive
+LMS = official, reactive, secure
+
+INTERVIEW ONE-LINER:
+Lightning Message Service is the recommended, reactive, and secure way to communicate between decoupled components in Salesforce.
