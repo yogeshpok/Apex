@@ -1,0 +1,308 @@
+LWC / UI Component Questions
+1. Have you used a custom datatable or the standard lightning-datatable?
+Answer: Yes—prefer standard lightning-datatable for sorting, inline edit, accessibility, and maintenance. Use custom datatable only when you need unsupported features (row virtualization, complex cell templates, multi-line cells, custom keyboard behavior, etc.).
+2. If your datatable is dynamic and reusable, how quickly can you add a new column?
+Answer: If it’s metadata-driven (columns from Custom Metadata/JSON), adding a new column is typically 5–15 minutes (add metadata + deploy). If it’s code-defined only, usually 30–90 minutes (update columns config, mapping, tests).
+3. How many story points would you estimate for adding a new column?
+Answer (typical):Salesforce Deloitte Developer Interview Questions (2025)
+Questions + Answers (LWC / Security / Permissions / Triggers)
+
+============================================================
+LWC / UI Component Questions
+============================================================
+
+1) Question: Have you used a custom datatable or the standard lightning-datatable?
+Answer:
+- Prefer standard lightning-datatable for sorting, inline edit, accessibility, and maintenance.
+- Build a custom datatable only when requirements exceed the standard component (custom cell templates, virtualization, advanced keyboard UX, etc.).
+
+2) Question: If your datatable is dynamic and reusable, how quickly can you add a new column?
+Answer:
+- If metadata-driven (Custom Metadata / JSON config): typically 5–15 minutes (add metadata + deploy).
+- If code-defined only: typically 30–90 minutes (update config, mapping, tests).
+
+3) Question: How many story points would you estimate for adding a new column?
+Answer (typical):
+- 1 point: simple display column from an existing field.
+- 2–3 points: formatting, conditional display, tooltip, server-side sort, or permissions.
+- 3–5 points: new backend field, query changes, business rules, and tests.
+
+============================================================
+Security Model Questions
+============================================================
+
+4) Question: Explain the Salesforce Security Model at a high level.
+Answer:
+- Object-level access: Profiles / Permission Sets (CRUD).
+- Field-level access: FLS (read/edit).
+- Record-level access: OWD baseline + role hierarchy (if used) + sharing rules + teams + manual sharing + Apex managed sharing.
+- Execution context: with sharing / without sharing impacts record access in Apex.
+
+5) Question: Based on Account.Country__c and User.Country__c, how will you restrict access
+   (Indian users → Indian accounts, US users → US accounts)?
+Answer:
+- You typically cannot do a direct "Account.Country__c = User.Country__c" equality with standard sharing rules.
+- Common approach (simple + admin-friendly):
+  - OWD for Account = Private.
+  - Create Public Groups per country (e.g., "India Users", "US Users").
+  - Maintain membership via Flow (User.Country__c drives group assignment).
+  - Criteria-based sharing rules share:
+    - Accounts with Country__c = 'India' to "India Users"
+    - Accounts with Country__c = 'US' to "US Users"
+- Alternatives:
+  - Enterprise Territory Management (territories by country).
+  - Apex managed sharing (AccountShare) if you need dynamic / complex rules.
+
+6) Question: In a criteria-based sharing rule, what conditions can we use?
+Answer:
+- Conditions are based on fields on the record being shared (e.g., Account.Country__c = 'India', Type = 'Customer', RecordType, etc.).
+- Sharing targets are roles, roles & subordinates, public groups, or territories.
+- You generally cannot reference arbitrary User fields in the criteria expression itself.
+
+============================================================
+Permission Model Question
+============================================================
+
+7) Question: What is the purpose of Muting Permission Sets and how are they useful?
+Answer:
+- A Muting Permission Set is used with a Permission Set Group to remove (mute) specific permissions that the group would otherwise grant.
+- Useful for "bundle + exceptions" without cloning many permission sets; supports least privilege.
+
+============================================================
+Business Logic / Trigger Scenario
+============================================================
+
+Scenario:
+On Account, you have a field that stores number of US Contacts. Ensure it always stays updated.
+
+8) Question: On Account, you have a field that stores number of US Contacts.
+   How will you ensure it always stays updated?
+Answer:
+- Use a bulk-safe Contact trigger (after insert/update/delete/undelete) that recalculates counts for impacted AccountIds.
+- Implementation should use one aggregate query (GROUP BY AccountId) and one bulk update to Accounts.
+
+9) Question: How do you identify that a Contact is a US Contact?
+Answer:
+- Define a single rule, e.g. Contact.MailingCountry = 'United States' (or ISO code 'US'), or use a dedicated Contact.Country__c field.
+- Centralize the condition in a helper method for consistency.
+
+10) Question: If Contact.Country changes from US → Non-US, what happens?
+Answer:
+- That Contact no longer qualifies; the Account count should decrease.
+- Best practice is to recompute the entire count for the impacted Account(s), not do fragile +1/-1 math.
+
+11) Question: If both Country and AccountId change simultaneously, how do you handle it?
+Answer:
+- Recompute counts for BOTH the old AccountId and the new AccountId:
+  - The record moved (affects old and new Accounts).
+  - The qualification may have changed (US vs non-US).
+
+12) Question: Write the trigger for this entire scenario.
+Answer (sample implementation; replace field API names as needed):
+
+trigger ContactTrigger on Contact (after insert, after update, after delete, after undelete) {
+    ContactUSCountService.recalcUSCounts(
+        Trigger.new,
+        Trigger.old,
+        Trigger.isInsert,
+        Trigger.isUpdate,
+        Trigger.isDelete,
+        Trigger.isUndelete
+    );
+}
+
+public class ContactUSCountService {
+    public static void recalcUSCounts(
+        List<Contact> newList,
+        List<Contact> oldList,
+        Boolean isInsert,
+        Boolean isUpdate,
+        Boolean isDelete,
+        Boolean isUndelete
+    ) {
+        Set<Id> accountIds = new Set<Id>();
+
+        if (isInsert || isUndelete) {
+            for (Contact c : newList) {
+                if (c.AccountId != null) accountIds.add(c.AccountId);
+            }
+        }
+
+        if (isUpdate) {
+            for (Integer i = 0; i < newList.size(); i++) {
+                Contact n = newList[i];
+                Contact o = oldList[i];
+
+                if (o.AccountId != null) accountIds.add(o.AccountId);
+                if (n.AccountId != null) accountIds.add(n.AccountId);
+            }
+        }
+
+        if (isDelete) {
+            for (Contact c : oldList) {
+                if (c.AccountId != null) accountIds.add(c.AccountId);
+            }
+        }
+
+        if (accountIds.isEmpty()) return;
+
+        Map<Id, Integer> countsByAccount = new Map<Id, Integer>();
+        for (AggregateResult ar : [
+            SELECT AccountId accId, COUNT(Id) cnt
+            FROM Contact
+            WHERE AccountId IN :accountIds
+              AND MailingCountry = 'United States'
+            GROUP BY AccountId
+        ]) {
+            countsByAccount.put((Id)ar.get('accId'), (Integer)ar.get('cnt'));
+        }
+
+        List<Account> toUpdate = new List<Account>();
+        for (Id accId : accountIds) {
+            Integer cnt = countsByAccount.containsKey(accId) ? countsByAccount.get(accId) : 0;
+            toUpdate.add(new Account(
+                Id = accId,
+                US_Contacts_Count__c = cnt
+            ));
+        }
+
+        update toUpdate;
+    }
+}
+
+
+1 point: simple display column (text/number/date) from existing field.
+2–3 points: column needs formatting, tooltip, conditional styling, or server-side sort.
+3–5 points: column needs new backend field, new query, permission checks, and tests.
+Security Model Questions
+4. Explain the Salesforce Security Model at a high level.
+Answer:
+Authentication (who you are) + Authorization (what you can do).
+Object-level access: Profile/Permission Sets (CRUD).
+Field-level access: FLS (read/edit).
+Record-level access: OWD baseline + Role hierarchy (if enabled) + Sharing rules + Teams + Manual/Apex managed sharing.
+Execution context: “with sharing/without sharing”, plus system-mode behaviors (Apex vs Flow nuances).
+5. Based on Account.Country__c and User.Country__c, how will you restrict access (Indian users → Indian accounts, US users → US accounts)?
+Answer: You can’t do a direct “field-to-field equality” rule in standard sharing. Common workable designs:
+Option A (most common): Public Groups per country + Sharing Rules
+Maintain group membership via Flow: if User.Country__c = 'India' add user to “India Users” group.
+Create sharing rule: if Account.Country__c = 'India' share to “India Users”, etc.
+Set OWD = Private so users only see what’s shared.
+Option B: Enterprise Territory Management
+Territories by country; assign users to territories; accounts assigned to territory → access controlled.
+Option C: Apex Managed Sharing
+On Account insert/update, create/delete AccountShare rows based on country rules (more control, more code).
+Optional hard restriction: Use Restriction Rules (if available in your org) to limit visibility for certain user sets, but you still typically need a grouping strategy (role/group/perm set) rather than dynamic equality.
+6. In a criteria-based sharing rule, what conditions can we use?
+Answer: Conditions are based on fields on the record being shared (e.g., Account.Country__c = 'India', Type = 'Customer', RecordType = X, etc.). You share to roles, roles & subordinates, public groups, or territories. You generally cannot reference arbitrary User fields in the criteria expression.
+Permission Model Question
+7. What is the purpose of Muting Permission Sets and how are they useful?
+Answer: A Muting Permission Set is used with a Permission Set Group to remove (mute) specific permissions that the group would otherwise grant. It’s useful for:
+creating one “standard bundle” group,
+then carving out exceptions (least privilege) without cloning multiple permission sets.
+Business Logic / Trigger Scenario (Account has “# of US Contacts”)
+8. On Account, you have a field that stores number of US Contacts. How will you ensure it always stays updated?
+Answer: Use a Contact trigger (after insert/update/delete/undelete) to recalculate counts for impacted Accounts using one aggregate query and one bulk update. (If you have DLRS installed, that’s also a valid tool-based alternative.)
+9. How do you identify that a Contact is a US Contact?
+Answer: Define a single rule, e.g. Contact.MailingCountry = 'United States' (or ISO code US), or a dedicated Contact.Country__c. Centralize it in one helper method so the logic is consistent everywhere.
+10. If Contact.Country changes from US → Non-US, what happens?
+Answer: That contact no longer qualifies, so the Account’s US-contact count should decrease. The safest implementation is to recompute the count for that Account, not do fragile “+1/-1” math.
+11. If both Country and AccountId change simultaneously, how do you handle it?
+Answer: Update both the old and new Accounts (because the record moved, and its qualification may also have changed). Best practice: collect all impacted AccountIds from old + new values, then recompute counts for those Accounts.
+12. Write the trigger for this entire scenario.
+Below is a bulk-safe implementation that handles insert/update/delete/undelete and both field changes:
+trigger ContactTrigger on Contact (after insert, after update, after delete, after undelete) {    ContactUSCountService.recalcUSCounts(Trigger.new, Trigger.old, Trigger.isInsert, Trigger.isUpdate, Trigger.isDelete, Trigger.isUndelete);}public class ContactUSCountService {    public static void recalcUSCounts(        List<Contact> newList,        List<Contact> oldList,        Boolean isInsert,        Boolean isUpdate,        Boolean isDelete,        Boolean isUndelete    ) {        Set<Id> accountIds = new Set<Id>();        if (isInsert || isUndelete) {            for (Contact c : newList) {                if (c.AccountId != null) accountIds.add(c.AccountId);            }        }        if (isUpdate) {            for (Integer i = 0; i < newList.size(); i++) {                Contact n = newList[i];                Contact o = oldList[i];                if (o.AccountId != null) accountIds.add(o.AccountId);                if (n.AccountId != null) accountIds.add(n.AccountId);            }        }        if (isDelete) {            for (Contact c : oldList) {                if (c.AccountId != null) accountIds.add(c.AccountId);            }        }        if (accountIds.isEmpty()) return;        // Aggregate: count only US contacts per Account.        Map<Id, Integer> countsByAccount = new Map<Id, Integer>();        for (AggregateResult ar : [            SELECT AccountId accId, COUNT(Id) cnt            FROM Contact            WHERE AccountId IN :accountIds              AND MailingCountry = 'United States'            GROUP BY AccountId        ]) {            countsByAccount.put((Id)ar.get('accId'), (Integer)ar.get('cnt'));        }        List<Account> toUpdate = new List<Account>();        for (Id accId : accountIds) {            Integer cnt = countsByAccount.containsKey(accId) ? countsByAccount.get(accId) : 0;            toUpdate.add(new Account(                Id = accId,                US_Contacts_Count__c = cnt            ));        }        update toUpdate;    }}LWC / UI Component Questions
+1. Have you used a custom datatable or the standard lightning-datatable?
+Answer: Yes—prefer standard lightning-datatable for sorting, inline edit, accessibility, and maintenance. Use custom datatable only when you need unsupported features (row virtualization, complex cell templates, multi-line cells, custom keyboard behavior, etc.).
+2. If your datatable is dynamic and reusable, how quickly can you add a new column?
+Answer: If it’s metadata-driven (columns from Custom Metadata/JSON), adding a new column is typically 5–15 minutes (add metadata + deploy). If it’s code-defined only, usually 30–90 minutes (update columns config, mapping, tests).
+3. How many story points would you estimate for adding a new column?
+Answer (typical):
+1 point: simple display column (text/number/date) from existing field.
+2–3 points: column needs formatting, tooltip, conditional styling, or server-side sort.
+3–5 points: column needs new backend field, new query, permission checks, and tests.
+Security Model Questions
+4. Explain the Salesforce Security Model at a high level.
+Answer:
+Authentication (who you are) + Authorization (what you can do).
+Object-level access: Profile/Permission Sets (CRUD).
+Field-level access: FLS (read/edit).
+Record-level access: OWD baseline + Role hierarchy (if enabled) + Sharing rules + Teams + Manual/Apex managed sharing.
+Execution context: “with sharing/without sharing”, plus system-mode behaviors (Apex vs Flow nuances).
+5. Based on Account.Country__c and User.Country__c, how will you restrict access (Indian users → Indian accounts, US users → US accounts)?
+Answer: You can’t do a direct “field-to-field equality” rule in standard sharing. Common workable designs:
+Option A (most common): Public Groups per country + Sharing Rules
+Maintain group membership via Flow: if User.Country__c = 'India' add user to “India Users” group.
+Create sharing rule: if Account.Country__c = 'India' share to “India Users”, etc.
+Set OWD = Private so users only see what’s shared.
+Option B: Enterprise Territory Management
+Territories by country; assign users to territories; accounts assigned to territory → access controlled.
+Option C: Apex Managed Sharing
+On Account insert/update, create/delete AccountShare rows based on country rules (more control, more code).
+Optional hard restriction: Use Restriction Rules (if available in your org) to limit visibility for certain user sets, but you still typically need a grouping strategy (role/group/perm set) rather than dynamic equality.
+6. In a criteria-based sharing rule, what conditions can we use?
+Answer: Conditions are based on fields on the record being shared (e.g., Account.Country__c = 'India', Type = 'Customer', RecordType = X, etc.). You share to roles, roles & subordinates, public groups, or territories. You generally cannot reference arbitrary User fields in the criteria expression.
+Permission Model Question
+7. What is the purpose of Muting Permission Sets and how are they useful?
+Answer: A Muting Permission Set is used with a Permission Set Group to remove (mute) specific permissions that the group would otherwise grant. It’s useful for:
+creating one “standard bundle” group,
+then carving out exceptions (least privilege) without cloning multiple permission sets.
+Business Logic / Trigger Scenario (Account has “# of US Contacts”)
+8. On Account, you have a field that stores number of US Contacts. How will you ensure it always stays updated?
+Answer: Use a Contact trigger (after insert/update/delete/undelete) to recalculate counts for impacted Accounts using one aggregate query and one bulk update. (If you have DLRS installed, that’s also a valid tool-based alternative.)
+9. How do you identify that a Contact is a US Contact?
+Answer: Define a single rule, e.g. Contact.MailingCountry = 'United States' (or ISO code US), or a dedicated Contact.Country__c. Centralize it in one helper method so the logic is consistent everywhere.
+10. If Contact.Country changes from US → Non-US, what happens?
+Answer: That contact no longer qualifies, so the Account’s US-contact count should decrease. The safest implementation is to recompute the count for that Account, not do fragile “+1/-1” math.
+11. If both Country and AccountId change simultaneously, how do you handle it?
+Answer: Update both the old and new Accounts (because the record moved, and its qualification may also have changed). Best practice: collect all impacted AccountIds from old + new values, then recompute counts for those Accounts.
+12. Write the trigger for this entire scenario.
+Below is a bulk-safe implementation that handles insert/update/delete/undelete and both field changes:
+trigger ContactTrigger on Contact (after insert, after update, after delete, after undelete) {    ContactUSCountService.recalcUSCounts(Trigger.new, Trigger.old, Trigger.isInsert, Trigger.isUpdate, Trigger.isDelete, Trigger.isUndelete);}public class ContactUSCountService {    public static void recalcUSCounts(        List<Contact> newList,        List<Contact> oldList,        Boolean isInsert,        Boolean isUpdate,        Boolean isDelete,        Boolean isUndelete    ) {        Set<Id> accountIds = new Set<Id>();        if (isInsert || isUndelete) {            for (Contact c : newList) {                if (c.AccountId != null) accountIds.add(c.AccountId);            }        }        if (isUpdate) {            for (Integer i = 0; i < newList.size(); i++) {                Contact n = newList[i];                Contact o = oldList[i];                if (o.AccountId != null) accountIds.add(o.AccountId);                if (n.AccountId != null) accountIds.add(n.AccountId);            }        }        if (isDelete) {            for (Contact c : oldList) {                if (c.AccountId != null) accountIds.add(c.AccountId);            }        }        if (accountIds.isEmpty()) return;        // Aggregate: count only US contacts per Account.        Map<Id, Integer> countsByAccount = new Map<Id, Integer>();        for (AggregateResult ar : [            SELECT AccountId accId, COUNT(Id) cnt            FROM Contact            WHERE AccountId IN :accountIds              AND MailingCountry = 'United States'            GROUP BY AccountId        ]) {            countsByAccount.put((Id)ar.get('accId'), (Integer)ar.get('cnt'));        }        List<Account> toUpdate = new List<Account>();        for (Id accId : accountIds) {            Integer cnt = countsByAccount.containsKey(accId) ? countsByAccount.get(accId) : 0;            toUpdate.add(new Account(                Id = accId,                US_Contacts_Count__c = cnt            ));        }        update toUpdate;    }}LWC / UI Component Questions
+1. Have you used a custom datatable or the standard lightning-datatable?
+Answer: Yes—prefer standard lightning-datatable for sorting, inline edit, accessibility, and maintenance. Use custom datatable only when you need unsupported features (row virtualization, complex cell templates, multi-line cells, custom keyboard behavior, etc.).
+2. If your datatable is dynamic and reusable, how quickly can you add a new column?
+Answer: If it’s metadata-driven (columns from Custom Metadata/JSON), adding a new column is typically 5–15 minutes (add metadata + deploy). If it’s code-defined only, usually 30–90 minutes (update columns config, mapping, tests).
+3. How many story points would you estimate for adding a new column?
+Answer (typical):
+1 point: simple display column (text/number/date) from existing field.
+2–3 points: column needs formatting, tooltip, conditional styling, or server-side sort.
+3–5 points: column needs new backend field, new query, permission checks, and tests.
+Security Model Questions
+4. Explain the Salesforce Security Model at a high level.
+Answer:
+Authentication (who you are) + Authorization (what you can do).
+Object-level access: Profile/Permission Sets (CRUD).
+Field-level access: FLS (read/edit).
+Record-level access: OWD baseline + Role hierarchy (if enabled) + Sharing rules + Teams + Manual/Apex managed sharing.
+Execution context: “with sharing/without sharing”, plus system-mode behaviors (Apex vs Flow nuances).
+5. Based on Account.Country__c and User.Country__c, how will you restrict access (Indian users → Indian accounts, US users → US accounts)?
+Answer: You can’t do a direct “field-to-field equality” rule in standard sharing. Common workable designs:
+Option A (most common): Public Groups per country + Sharing Rules
+Maintain group membership via Flow: if User.Country__c = 'India' add user to “India Users” group.
+Create sharing rule: if Account.Country__c = 'India' share to “India Users”, etc.
+Set OWD = Private so users only see what’s shared.
+Option B: Enterprise Territory Management
+Territories by country; assign users to territories; accounts assigned to territory → access controlled.
+Option C: Apex Managed Sharing
+On Account insert/update, create/delete AccountShare rows based on country rules (more control, more code).
+Optional hard restriction: Use Restriction Rules (if available in your org) to limit visibility for certain user sets, but you still typically need a grouping strategy (role/group/perm set) rather than dynamic equality.
+6. In a criteria-based sharing rule, what conditions can we use?
+Answer: Conditions are based on fields on the record being shared (e.g., Account.Country__c = 'India', Type = 'Customer', RecordType = X, etc.). You share to roles, roles & subordinates, public groups, or territories. You generally cannot reference arbitrary User fields in the criteria expression.
+Permission Model Question
+7. What is the purpose of Muting Permission Sets and how are they useful?
+Answer: A Muting Permission Set is used with a Permission Set Group to remove (mute) specific permissions that the group would otherwise grant. It’s useful for:
+creating one “standard bundle” group,
+then carving out exceptions (least privilege) without cloning multiple permission sets.
+Business Logic / Trigger Scenario (Account has “# of US Contacts”)
+8. On Account, you have a field that stores number of US Contacts. How will you ensure it always stays updated?
+Answer: Use a Contact trigger (after insert/update/delete/undelete) to recalculate counts for impacted Accounts using one aggregate query and one bulk update. (If you have DLRS installed, that’s also a valid tool-based alternative.)
+9. How do you identify that a Contact is a US Contact?
+Answer: Define a single rule, e.g. Contact.MailingCountry = 'United States' (or ISO code US), or a dedicated Contact.Country__c. Centralize it in one helper method so the logic is consistent everywhere.
+10. If Contact.Country changes from US → Non-US, what happens?
+Answer: That contact no longer qualifies, so the Account’s US-contact count should decrease. The safest implementation is to recompute the count for that Account, not do fragile “+1/-1” math.
+11. If both Country and AccountId change simultaneously, how do you handle it?
+Answer: Update both the old and new Accounts (because the record moved, and its qualification may also have changed). Best practice: collect all impacted AccountIds from old + new values, then recompute counts for those Accounts.
+12. Write the trigger for this entire scenario.
+Below is a bulk-safe implementation that handles insert/update/delete/undelete and both field changes:
+trigger ContactTrigger on Contact (after insert, after update, after delete, after undelete) {    ContactUSCountService.recalcUSCounts(Trigger.new, Trigger.old, Trigger.isInsert, Trigger.isUpdate, Trigger.isDelete, Trigger.isUndelete);}public class ContactUSCountService {    public static void recalcUSCounts(        List<Contact> newList,        List<Contact> oldList,        Boolean isInsert,        Boolean isUpdate,        Boolean isDelete,        Boolean isUndelete    ) {        Set<Id> accountIds = new Set<Id>();        if (isInsert || isUndelete) {            for (Contact c : newList) {                if (c.AccountId != null) accountIds.add(c.AccountId);            }        }        if (isUpdate) {            for (Integer i = 0; i < newList.size(); i++) {                Contact n = newList[i];                Contact o = oldList[i];                if (o.AccountId != null) accountIds.add(o.AccountId);                if (n.AccountId != null) accountIds.add(n.AccountId);            }        }        if (isDelete) {            for (Contact c : oldList) {                if (c.AccountId != null) accountIds.add(c.AccountId);            }        }        if (accountIds.isEmpty()) return;        // Aggregate: count only US contacts per Account.        Map<Id, Integer> countsByAccount = new Map<Id, Integer>();        for (AggregateResult ar : [            SELECT AccountId accId, COUNT(Id) cnt            FROM Contact            WHERE AccountId IN :accountIds              AND MailingCountry = 'United States'            GROUP BY AccountId        ]) {            countsByAccount.put((Id)ar.get('accId'), (Integer)ar.get('cnt'));        }        List<Account> toUpdate = new List<Account>();        for (Id accId : accountIds) {            Integer cnt = countsByAccount.containsKey(accId) ? countsByAccount.get(accId) : 0;            toUpdate.add(new Account(                Id = accId,                US_Contacts_Count__c = cnt            ));        }        update toUpdate;    }}
