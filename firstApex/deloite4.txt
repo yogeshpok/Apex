@@ -1,12 +1,3 @@
-LWC / UI Component Questions
-1. Have you used a custom datatable or the standard lightning-datatable?
-Answer: Yes—prefer standard lightning-datatable for sorting, inline edit, accessibility, and maintenance. Use custom datatable only when you need unsupported features (row virtualization, complex cell templates, multi-line cells, custom keyboard behavior, etc.).
-2. If your datatable is dynamic and reusable, how quickly can you add a new column?
-Answer: If it’s metadata-driven (columns from Custom Metadata/JSON), adding a new column is typically 5–15 minutes (add metadata + deploy). If it’s code-defined only, usually 30–90 minutes (update columns config, mapping, tests).
-3. How many story points would you estimate for adding a new column?
-Answer (typical):Salesforce Deloitte Developer Interview Questions (2025)
-Questions + Answers (LWC / Security / Permissions / Triggers)
-
 ============================================================
 LWC / UI Component Questions
 ============================================================
