@@ -1,0 +1,190 @@
+Trigger Framework / Apex Design
+Q1. How would you design a trigger framework that supports multiple objects, recursion control, and feature toggling?
+Answer:
+Thin trigger per object → calls a shared dispatcher.
+Dispatcher routes to handler classes (before/after, insert/update/delete/undelete).
+Recursion control via static sets/maps keyed by object+event (and optionally record Ids).
+Feature toggles via Custom Metadata (kill switch / per-profile/per-permission targeting) checked in dispatcher/services.
+Q2. How do you handle mixed DML operations in a single transaction involving setup and non-setup objects?
+Answer:
+You can’t DML setup (User/Group/PermissionSetAssignment) and non-setup together.
+Split into two transactions using Queueable/@future/Platform Event.
+Use an outbox/inbox record to persist intent, then async processes setup DML.
+Q3. A trigger receives 10,000 records from middleware—how would you process them without hitting limits?
+Answer:
+Bulkify (single SOQL per relationship, single DML per object).
+Move heavy work to async (Queueable/Batch).
+Chunk processing (e.g., 200–2,000 records per Queueable run depending on logic).
+Avoid callouts/complex loops in trigger; use staging + async processor.
+Q4. How would you implement partial success handling in bulk DML operations?
+Answer:
+Use Database.insert(records, false) / Database.update(records, false).
+Iterate SaveResult[] to capture per-record errors.
+Log failures (custom object/platform event) with correlation id and retry only transient errors.
+Q5. How do you design Apex code to be retry-safe and idempotent?
+Answer:
+Require an idempotency key (external request id) stored with unique constraint.
+Use upsert with external id where possible.
+Use an inbox table pattern: if key already processed, return “already done” outcome.
+Q6. How would you refactor an existing trigger that has SOQL/DML inside loops in production?
+Answer:
+Add tests first (lock behavior).
+Extract to handler/service classes.
+Replace loop SOQL with set-based queries and maps.
+Replace loop DML with single bulk DML.
+Release behind a feature toggle to reduce risk.
+Q7. How do you manage callouts + DML in the same execution context?
+Answer:
+Prefer outbox pattern: commit a “work item”, then async Queueable (AllowsCallouts) makes callout and updates status.
+Avoid callout-after-DML patterns that risk rollback inconsistency.
+Q8. How would you debug an intermittent governor limit exception that occurs only in PROD?
+Answer:
+Add targeted instrumentation: counts + Limits.get*() snapshots + correlation id.
+Enable debug logs only for the integration user (short window).
+Look for PROD-only causes: data volume/skew, extra automation (Flow/managed pkg), concurrency.
+Q9. How do you implement transaction control in Salesforce when multiple triggers fire?
+Answer:
+You can’t control commit directly; Salesforce commits at transaction end.
+Use a Unit of Work pattern to centralize DML.
+Coordinate via static context flags and service orchestration; push cross-object ordering to async if needed.
+Q10. How would you handle record locking issues in a high-concurrency org?
+Answer:
+Reduce hot-spot updates (avoid parent rollups in sync triggers).
+Update records in consistent order; minimize touched rows/fields.
+Catch UNABLE_TO_LOCK_ROW and retry with backoff via Queueable.
+LWC Performance / Architecture
+Q11. How would you design an LWC that handles 50k+ records without UI lag?
+Answer:
+Don’t render 50k DOM rows.
+Use pagination/infinite loading or virtual scrolling.
+Server-side filter/sort; fetch only visible slices; debounce search.
+Q12. How do you prevent unnecessary re-rendering in complex LWC applications?
+Answer:
+Keep state minimal; avoid recreating arrays/objects on every update.
+Debounce frequent updates; split into smaller components.
+Memoize computed data (don’t compute heavy logic in getters repeatedly).
+Q13. How would you implement dynamic component loading based on metadata?
+Answer:
+Use Custom Metadata to map “feature → component + config”.
+Render conditionally (or dynamic component where supported).
+Validate permissions/CRUD/FLS before showing.
+Q14. How do you architect cross-tab or cross-page communication in LWC?
+Answer:
+Same page: Lightning Message Service.
+Cross-tab: server-mediated signals (Platform Events/CDC) or controlled polling.
+Use URL state + storage for navigation persistence.
+Q15. How would you debug a memory leak in a long-running LWC session?
+Answer:
+Clear intervals/timeouts and remove listeners in disconnectedCallback().
+Avoid module-level retained references.
+Use browser memory profiling to confirm retained objects.
+Q16. How do you manage state consistency between LWC, Apex, and browser cache?
+Answer:
+Define a single source of truth; refresh via refreshApex().
+Use optimistic UI only with rollback strategy.
+Use version checks (LastModifiedDate) to prevent stale writes.
+Q17. How would you secure an LWC that displays sensitive financial data?
+Answer:
+Apex: with sharing, CRUD/FLS enforcement (stripInaccessible).
+LWC: never rely only on client checks; minimize data returned.
+Add auditing/monitoring; use Named Credentials for integration secrets.
+Q18. How do you handle race conditions when multiple LWCs update the same record?
+Answer:
+Optimistic concurrency using version (LastModifiedDate/custom version field).
+If mismatch → re-fetch and prompt conflict resolution.
+Serialize updates through a single orchestrator when needed.
+Q19. How would you implement offline-ready LWC behavior?
+Answer:
+Cache reads locally (e.g., IndexedDB); queue writes with idempotency keys.
+Sync when online; handle conflicts and retries.
+Q20. How do you design LWCs to be package-ready and reusable across orgs?
+Answer:
+No hard-coded Ids; config via Custom Metadata/Labels.
+Minimal org-specific dependencies; clear public @api.
+Strong permission checks + documentation.
+Integrations / Reliability
+Q21. How would you design a bi-directional real-time sync between Salesforce and an external ERP?
+Answer:
+Event-driven: Salesforce CDC/Platform Events ↔ middleware ↔ ERP.
+Use canonical model + mapping layer in middleware.
+Idempotency + replay + monitoring.
+Q22. How do you ensure exactly-once processing for inbound API requests?
+Answer:
+Inbox table with unique idempotency key.
+Store processing state; duplicates return same outcome without reapplying side effects.
+Q23. How would you handle API throttling and rate limits from third-party systems?
+Answer:
+Centralize throttling in middleware; in Salesforce use Queueable retries.
+Backoff + jitter; circuit breaker to fail fast when vendor is down.
+Q24. How do you design an integration that supports retry, back-off, and dead-letter handling?
+Answer:
+Retry only transient failures; cap attempts.
+Exponential backoff + jitter.
+Dead-letter store with payload + error + correlation id + reprocess tooling.
+Q25. How do you manage versioning of APIs consumed by Salesforce?
+Answer:
+Version endpoints/headers; keep adapters per version.
+Use a facade layer in Apex so business logic is insulated from version changes.
+Q26. How would you secure an integration that handles PII or financial data?
+Answer:
+OAuth/mTLS, least privilege, Named Credentials, secret rotation.
+Encrypt sensitive fields; audit trails; minimize data movement.
+Q27. How do you process out-of-order events from Platform Events or CDC?
+Answer:
+Include sequence/version; persist last processed version per entity.
+Buffer/reorder if required or apply last-write-wins with reconciliation.
+Q28. How would you design an integration for millions of records per day?
+Answer:
+Bulk APIs + async pipelines.
+Staging + batch processing; avoid synchronous trigger work.
+Partitioning, backpressure, observability.
+Q29. How do you handle schema changes from external systems without breaking Salesforce?
+Answer:
+Tolerant reader; mapping layer in middleware.
+Versioned contracts; feature flags for new fields.
+Automated drift detection.
+Q30. How would you troubleshoot data mismatch issues between Salesforce and middleware?
+Answer:
+Correlation ids end-to-end.
+Reconciliation reports and checksums.
+Store raw + transformed payloads + applied operations for audit.
+Enterprise Architecture / Governance
+Q31. How would you design a multi-org Salesforce architecture for a global enterprise?
+Answer:
+Hub-and-spoke or regional orgs based on data residency/latency/regulatory needs.
+Shared services in middleware; clear system-of-record per domain.
+Q32. How do you enforce field-level security dynamically in Apex APIs?
+Answer:
+CRUD checks + Security.stripInaccessible() on reads/writes.
+Enforce at API boundary, not in UI.
+Q33. How do you design Salesforce to be loosely coupled from external systems?
+Answer:
+Events + canonical model; avoid hard-wiring external semantics into core objects.
+Anti-corruption layer (middleware/Apex integration layer).
+Q34. How would you architect disaster recovery for critical Salesforce integrations?
+Answer:
+Define RPO/RTO; durable messaging + replay; multi-region middleware.
+Runbooks + DR drills; monitoring and automated failover tests.
+Q35. How do you handle zero-downtime deployments in Salesforce?
+Answer:
+Feature toggles + backward-compatible schema changes + phased rollout.
+Defer destructive changes until consumers migrate.
+Q36. How do you ensure auditability and traceability for data changes?
+Answer:
+Field history + custom audit objects for critical actions.
+Correlation ids, “who/what/why”, and centralized logging/SIEM integration.
+Q37. How would you design a feature toggle system in Salesforce?
+Answer:
+Custom Metadata toggles, cached.
+Target rules by org/profile/perm set/record type/BU.
+“Kill switch” for emergency disable.
+Q38. How do you handle technical debt in a large Salesforce codebase?
+Answer:
+Standard patterns (trigger framework, services, selectors).
+Static analysis + coding standards + refactor budget each sprint.
+Incremental modernization behind toggles.
+Q39. How do you design Salesforce solutions that are future-proof against platform limits?
+Answer:
+Async-first; bulk processing; event-driven where possible.
+Avoid trigger bloat; strong observability.
+Design for data skew and concurrency early.
