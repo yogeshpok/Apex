@@ -160,3 +160,224 @@ public class ContactUSCountService {
         update toUpdate;
     }
 }
+===========================
+
+BARCLAY
+==========
+what it difference betwwn page layout and record type
+what is difference between lightning page and page layout.
+what is the difference between lighning page and dynamic form
+explain the LWC lifrcycle hooks.
+if the case having the one filed and we want to show for the one user and we dont want to show another user how we can achieve this. 
+explian the owd 
+wehat is custom setting and custom metadaata.
+
+
+1️⃣ Difference between Page Layout and Record Type
+Feature	Page Layout	Record Type
+Purpose	Controls UI (fields, buttons, sections)	Controls business process
+Fields visibility	Yes (show/hide, read-only)	No
+Picklist values	No	Yes (different values per record type)
+Used for	UI customization	Multiple processes on same object
+Example	Show “Discount” field only on layout	Separate record types for B2B & B2C Accounts
+✅ Simple Example
+
+Record Type = Customer Account vs Partner Account
+
+Page Layout = Different fields shown for each record type
+
+📌 Record Type decides “WHAT type of record”
+📌 Page Layout decides “HOW it looks”
+
+2️⃣ Difference between Lightning Page and Page Layout
+Feature	Lightning Page	Page Layout
+UI type	Modern (Lightning Experience)	Classic + Lightning
+Components	Yes (LWC, standard components)	No
+Fields placement	Via components	Directly on layout
+Conditional visibility	Yes	No
+Multiple layouts per app/profile	Yes	Limited
+✅ Example
+
+Page Layout → Controls fields & buttons
+
+Lightning Page → Controls tabs, charts, related lists, LWC
+
+📌 Think of it as:
+Page Layout = Form
+Lightning Page = Full Screen UI
+
+3️⃣ Difference between Lightning Page and Dynamic Forms
+Feature	Lightning Page	Dynamic Forms
+Purpose	Page structure	Field-level control
+Conditional visibility	Component-level	Field & section-level
+Uses Page Layout?	Yes	No (replaces layout)
+Field placement	Grouped	Individual control
+✅ Example
+
+Lightning Page → Where components are placed
+
+Dynamic Forms → Show/Hide fields based on user, role, record data
+
+📌 Dynamic Forms = Advanced Page Layout in Lightning
+
+4️⃣ LWC Lifecycle Hooks (Very Important for Interviews)
+🔹 Lifecycle Flow
+
+1️⃣ constructor()
+
+Runs first
+
+Initialize variables
+
+No DOM access
+
+2️⃣ connectedCallback()
+
+Component inserted into DOM
+
+Call Apex / load data
+
+3️⃣ render()
+
+Returns HTML template
+
+4️⃣ renderedCallback()
+
+DOM is ready
+
+Manipulate DOM (careful of loops)
+
+5️⃣ disconnectedCallback()
+
+Component removed
+
+Cleanup (timers, listeners)
+
+6️⃣ errorCallback(error, stack)
+
+Handles child component errors
+
+✅ Example
+constructor() {
+  super();
+}
+
+connectedCallback() {
+  console.log('Component Loaded');
+}
+
+renderedCallback() {
+  console.log('DOM Ready');
+}
+
+
+📌 connectedCallback = Apex calls
+📌 renderedCallback = DOM logic
+
+5️⃣ Show a Field to One User but Hide from Another
+✅ Best Approaches (Interview-Approved)
+✔ Option 1: Field-Level Security (FLS)
+
+Hide field from specific profiles
+
+✔ Option 2: Dynamic Forms (Recommended)
+
+Visibility rule based on:
+
+User Profile
+
+Role
+
+Permission
+
+Record values
+
+✔ Option 3: Permission Set
+
+Grant field access to selected users
+
+✔ Option 4: LWC / Lightning Page Visibility Filter
+
+Control visibility at component level
+
+📌 Best Answer:
+👉 Use Permission Sets + Dynamic Forms
+
+6️⃣ What is OWD (Organization-Wide Defaults)
+🔹 Definition
+
+OWD defines baseline record access for users who are not above in role hierarchy.
+
+🔹 OWD Options
+
+Private
+
+Public Read Only
+
+Public Read/Write
+
+✅ Example
+
+Account OWD = Private
+
+User A creates Account
+
+User B cannot see it unless:
+
+Role hierarchy
+
+Sharing rule
+
+Manual sharing
+
+📌 OWD = Most restrictive access
+
+7️⃣ Difference between Custom Settings and Custom Metadata
+Feature	Custom Setting	Custom Metadata
+Data type	App data	Configuration data
+Deployment	❌ Manual	✅ With metadata
+SOQL allowed	No (direct access)	Yes
+Access	Cached	Cached
+Security	Can be profile/user specific	Admin only
+Use case	User-specific config	App-wide config
+✅ Example
+
+Custom Setting → User-wise discount limit
+
+Custom Metadata → Tax % or API URL
+
+📌 Best Practice:
+👉 Use Custom Metadata instead of Custom Settings
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
