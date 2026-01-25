@@ -15,3 +15,4 @@ trigger Eight_10_12_2025 on Contact (before insert) {
 
      
 }
+
